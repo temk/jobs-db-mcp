@@ -31,6 +31,16 @@ is not committed.
 | `JOBDBMCP_PORT` | Listen port, `8000` by default. |
 | `LIQUIBASE_COMMAND_*` | Used only when applying migrations, see below. |
 
+Read by `docker-compose.yml` rather than by the server itself:
+
+| Variable | Description |
+| --- | --- |
+| `POSTGRESQL_HOST` | Database host the containers connect to. |
+| `JOBDBMCP_RW_PORT` | Published port of the read-write container. |
+| `JOBDBMCP_RO_PORT` | Published port of the read-only container. |
+| `JOBDBMCP_RW_PASSWORD` | Password of the read-write database role. |
+| `JOBDBMCP_RO_PASSWORD` | Password of the read-only database role. |
+
 ## Running
 
 The server speaks MCP over Streamable HTTP at `/mcp`.
@@ -42,19 +52,18 @@ uv run job-db-mcp
 In Docker:
 
 ```bash
-docker build -t jobdbmcp .
+docker build -t job-db-mcp .
 docker run --rm --env-file .env jobdbmcp
 ```
 
-`docker-compose.yml` runs two containers off the same image: a read-write one and a read-only
-one, each with its own database role. Passwords come from `JOBS_RW_PASSWORD` and
-`JOBS_RO_PASSWORD`.
+`docker-compose.yml` runs two containers off the same image, one with writes enabled and one
+without, each connecting as its own database role:
 
 ```bash
 docker compose up -d
 ```
 
-The containers need network access to the database named in `JOBDBMCP_DATABASE_URL`.
+The containers need network access to the database.
 
 Read tools: `job_exists`, `get_job`, `find_jobs`.
 Write tools: `save_job`, `set_job_status`, `set_job_score`. They are registered only when
