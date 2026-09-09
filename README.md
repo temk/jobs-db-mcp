@@ -36,7 +36,7 @@ is not committed.
 The server speaks MCP over Streamable HTTP at `/mcp`.
 
 ```bash
-uv run jobdbmcp
+uv run job-db-mcp
 ```
 
 In Docker:
@@ -46,7 +46,15 @@ docker build -t jobdbmcp .
 docker run --rm --env-file .env jobdbmcp
 ```
 
-The container needs network access to the database named in `JOBDBMCP_DATABASE_URL`.
+`docker-compose.yml` runs two containers off the same image: a read-write one and a read-only
+one, each with its own database role. Passwords come from `JOBS_RW_PASSWORD` and
+`JOBS_RO_PASSWORD`.
+
+```bash
+docker compose up -d
+```
+
+The containers need network access to the database named in `JOBDBMCP_DATABASE_URL`.
 
 Read tools: `job_exists`, `get_job`, `find_jobs`.
 Write tools: `save_job`, `set_job_status`, `set_job_score`. They are registered only when

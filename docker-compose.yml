@@ -1,0 +1,35 @@
+services:
+  job-db-mcp-rw:
+    build: .
+    image: job-db-mcp
+    container_name: job-db-mcp-rw
+    ports:
+      - "8101:8000"
+    environment:
+      JOBDBMCP_DATABASE_URL: postgresql://jobs_rw:${JOBS_RW_PASSWORD}@postgres:5432/jobs
+      JOBDBMCP_ALLOW_WRITES: "true"
+      JOBDBMCP_PORT: 8000
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - pgnet
+    restart: unless-stopped
+
+  job-db-mcp-ro:
+    build: .
+    image: job-db-mcp
+    container_name: job-db-mcp-ro
+    ports:
+      - "8102:8000"
+    environment:
+      JOBDBMCP_DATABASE_URL: postgresql://jobs_ro:${JOBS_RO_PASSWORD}@postgres:5432/jobs
+      JOBDBMCP_PORT: 8000
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - pgnet
+    restart: unless-stopped
+
+networks:
+  pgnet:
+    external: true

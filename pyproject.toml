@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.scripts]
-jobdbmcp = "jobdbmcp.server:main"
+job-db-mcp = "jobdbmcp.server:main"
 
 [dependency-groups]
 dev = [
