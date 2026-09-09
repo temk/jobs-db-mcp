@@ -33,11 +33,11 @@ def test_user_wildcards_do_not_widen_the_match() -> None:
 
 
 def test_timestamps_are_passed_through_as_parameters() -> None:
-    seen_after = datetime(2026, 9, 1, tzinfo=UTC)
-    where, params = build_filters(None, None, None, None, seen_after, None, None, None, None)
+    downloaded_after = datetime(2026, 9, 1, tzinfo=UTC)
+    where, params = build_filters(None, None, None, None, downloaded_after, None, None, None, None)
 
     assert where == "WHERE downloaded_at >= $1"
-    assert params == [seen_after]
+    assert params == [downloaded_after]
 
 
 def test_escape_like_escapes_backslash_first() -> None:

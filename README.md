@@ -2,15 +2,15 @@
 
 MCP server providing controlled access to the job-search PostgreSQL database.
 
-The server exposes domain-specific MCP tools (saving jobs, deduplication checks, site parse
-status) over Streamable HTTP. Arbitrary SQL execution is intentionally not exposed.
+The server exposes domain-specific MCP tools for storing, finding, and reviewing job postings
+over Streamable HTTP. Arbitrary SQL execution is intentionally not exposed.
 
 ## Requirements
 
 - Python 3.14+
 - [uv](https://docs.astral.sh/uv/)
-- Docker
-- PostgreSQL (17.2 in development, 18 targeted)
+- PostgreSQL 18
+- Docker, to build and run the images
 
 ## Installation
 
@@ -39,12 +39,14 @@ The server speaks MCP over Streamable HTTP at `/mcp`.
 uv run jobdbmcp
 ```
 
-In Docker, joining the database container's network namespace:
+In Docker:
 
 ```bash
 docker build -t jobdbmcp .
-docker run --rm --network container:postgres --env-file .env jobdbmcp
+docker run --rm --env-file .env jobdbmcp
 ```
+
+The container needs network access to the database named in `JOBDBMCP_DATABASE_URL`.
 
 Read tools: `job_exists`, `get_job`, `find_jobs`.
 Write tools: `save_job`, `set_job_status`, `set_job_score`. They are registered only when
@@ -54,7 +56,6 @@ See [docs/api.md](docs/api.md) for their inputs and outputs.
 
 ## Database
 
-Development uses the local PostgreSQL 17.2 container named `postgres`, database `jobdb`.
 See [docs/db.md](docs/db.md) for the schema.
 
 Migrations are Liquibase formatted SQL changesets under `db/changelog/`. The runner image adds
@@ -64,29 +65,25 @@ the PostgreSQL JDBC driver, which Liquibase 5 no longer ships:
 docker build -t jobdbmcp-liquibase db
 ```
 
-The container joins the database container's network namespace, where connections from
-`127.0.0.1` are trusted and no password is needed. Connection settings come from `.env`, which
-is not committed; `.env.example` lists the variables.
+Connection settings come from `.env`: `LIQUIBASE_COMMAND_URL`, `LIQUIBASE_COMMAND_USERNAME`,
+`LIQUIBASE_COMMAND_PASSWORD`, and `LIQUIBASE_COMMAND_CHANGELOG_FILE=changelog-master.yaml`.
+Migrations need DDL rights, so they connect as a different role than the server does.
 
 ```bash
 # status of each changeset
-docker run --rm --network container:postgres --env-file .env \
+docker run --rm --env-file .env \
   -v ./db/changelog:/liquibase/changelog -w /liquibase/changelog \
   jobdbmcp-liquibase status --verbose
 
 # the SQL that would run, for review before applying
-docker run --rm --network container:postgres --env-file .env \
+docker run --rm --env-file .env \
   -v ./db/changelog:/liquibase/changelog -w /liquibase/changelog \
   jobdbmcp-liquibase update-sql
 
-docker run --rm --network container:postgres --env-file .env \
+docker run --rm --env-file .env \
   -v ./db/changelog:/liquibase/changelog -w /liquibase/changelog \
   jobdbmcp-liquibase update
 ```
-
-Against a database that is not reachable over a trusted loopback, drop `--network
-container:postgres`, point `LIQUIBASE_COMMAND_URL` at the host, and add
-`LIQUIBASE_COMMAND_PASSWORD`.
 
 ## Development
 

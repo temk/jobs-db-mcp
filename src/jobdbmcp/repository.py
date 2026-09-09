@@ -34,7 +34,7 @@ def build_filters(
     status: JobStatus | None,
     min_score: int | None,
     max_score: int | None,
-    seen_after: datetime | None,
+    downloaded_after: datetime | None,
     published_after: datetime | None,
     company: str | None,
     location: str | None,
@@ -56,8 +56,8 @@ def build_filters(
         add("score >= ${n}", min_score)
     if max_score is not None:
         add("score <= ${n}", max_score)
-    if seen_after is not None:
-        add("downloaded_at >= ${n}", seen_after)
+    if downloaded_after is not None:
+        add("downloaded_at >= ${n}", downloaded_after)
     if published_after is not None:
         add("published_at >= ${n}", published_after)
     if company is not None:
@@ -133,7 +133,7 @@ async def find_jobs(
     status: JobStatus | None = None,
     min_score: int | None = None,
     max_score: int | None = None,
-    seen_after: datetime | None = None,
+    downloaded_after: datetime | None = None,
     published_after: datetime | None = None,
     company: str | None = None,
     location: str | None = None,
@@ -143,7 +143,7 @@ async def find_jobs(
     offset: int = 0,
 ) -> list[JobSummary]:
     where, params = build_filters(
-        site, status, min_score, max_score, seen_after, published_after, company, location, title_contains
+        site, status, min_score, max_score, downloaded_after, published_after, company, location, title_contains
     )
     rows = await pool.fetch(
         f"""

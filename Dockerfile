@@ -1,4 +1,4 @@
-FROM python:3.14-slim
+FROM python:3.14-slim AS builder
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
@@ -7,7 +7,17 @@ WORKDIR /app
 COPY pyproject.toml uv.lock README.md ./
 COPY src ./src
 
-RUN uv sync --frozen --no-dev
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
+
+RUN uv sync --frozen --no-dev --no-cache --no-editable
+
+
+FROM python:3.14-slim
+
+WORKDIR /app
+
+COPY --from=builder /app/.venv /app/.venv
 
 # Run unprivileged. Application files stay root-owned and read-only to this user,
 # so the server cannot rewrite its own code.

@@ -56,6 +56,19 @@ Scores can be recalculated: the operation overwrites any previous value.
 
 ---
 
+## Untrusted content
+
+Every job field that originates from a source site (`site`, `pos_id`, `url`, `title`,
+`company`, `location`, `description`) is text written by whoever posted the vacancy. It is
+returned verbatim. Each response carries the marker once: `get_job` returns a
+`content_warning` field on the job, `find_jobs` returns `{content_warning, jobs}` so a
+50-record search does not repeat it 50 times. The server `instructions` say the same at `initialize`.
+
+This is a mitigation for prompt injection, not a security boundary: it relies on the consuming
+model honouring it. The actual boundary is that SQL is parameterised, no arbitrary SQL is
+exposed, and write tools are absent unless `JOBDBMCP_ALLOW_WRITES` is set, so injected text
+cannot reach the database whatever it says.
+
 ## Read operations
 
 ### `job_exists`
@@ -79,12 +92,14 @@ Get one job by internal `job_id`.
 Inputs:
 - `job_id`
 
-Returns the full stored job, current status, and score.
+Returns the full stored job, current status, and score, plus `content_warning`.
 
 ---
 
 ### `find_jobs`
 Main query interface for browsing and filtering jobs.
+
+Returns `{content_warning, jobs}`, where `jobs` omits descriptions.
 
 All filters are optional.
 
@@ -93,8 +108,8 @@ Inputs:
 - `status`
 - `min_score`
 - `max_score`
-- `seen_after`
-- `published_after`
+- `downloaded_after` — stored in the database at or after this moment
+- `published_after` — published by the site at or after this moment
 - `company`
 - `location`
 - `title_contains`
@@ -116,7 +131,7 @@ Example:
 ```text
 find_jobs(
     min_score=75,
-    seen_after="2026-09-01",
+    downloaded_after="2026-09-01",
     status="new",
     order_by="score",
     limit=50

@@ -1,7 +1,6 @@
 # Database Schema
 
-Target version PostgreSQL 18. Development runs against the local PostgreSQL 17.2 container;
-nothing in the schema is 18-specific.
+PostgreSQL 18. Nothing in the schema is 18-specific, so an older major version works too.
 
 All objects live in the `jobs` schema and are schema-qualified. Points in time are stored as
 `timestamptz` in UTC.
@@ -45,7 +44,7 @@ CREATE TABLE jobs.vacancies (
 | `company` | `text` | yes | Employer name. Nullable: agencies publish without naming the client. |
 | `location` | `text` | yes | Raw location string as published, not normalized. |
 | `description` | `text` | yes | Full job description text. |
-| `downloaded_at` | `timestamptz` | no | When the record was first stored. Defaults to `now()`, which is the insert time by definition. Backs the `seen_after` filter. |
+| `downloaded_at` | `timestamptz` | no | When the record was first stored. Defaults to `now()`, which is the insert time by definition. Backs the `downloaded_after` filter. |
 | `published_at` | `timestamptz` | yes | Publication date reported by the site, unknown for some sources. |
 | `score` | `smallint` | yes | Relevance score, 0 to 100. `NULL` means not scored yet. |
 | `status` | `text` | no | Review state: `new`, `interesting`, `not_interested`, `applied`. Defaults to `new`. |
@@ -56,6 +55,10 @@ CREATE TABLE jobs.vacancies (
 plain `INSERT`, and a second attempt to store the same posting fails on the unique constraint.
 The database is the arbiter of what is already known, so a re-parse cannot overwrite the title,
 the description, or the review state of a job that is already stored.
+
+Everything the parser writes, `title` and `description` included, is text from a third party.
+The database stores it verbatim and the API marks it as untrusted on the way out; see
+[docs/api.md](api.md).
 
 `url` is deliberately not unique: the same posting is often reachable through several URLs,
 while `(site, pos_id)` stays stable.
