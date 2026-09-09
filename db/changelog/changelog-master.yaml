@@ -1,0 +1,7 @@
+# Root changelog: inclusions only.
+# YAML rather than formatted SQL because include/includeAll inside a formatted SQL
+# changelog requires a Liquibase Pro license. Changesets themselves stay formatted SQL.
+databaseChangeLog:
+  - includeAll:
+      path: changesets/
+      relativeToChangelogFile: true

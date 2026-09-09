@@ -1,0 +1,52 @@
+[project]
+name = "jobdbmcp"
+version = "0.1.0"
+description = "MCP server providing controlled access to the job-search PostgreSQL database"
+requires-python = ">=3.14"
+dependencies = [
+    "mcp>=1.2",
+    "asyncpg>=0.30",
+    "pydantic-settings>=2.6",
+]
+
+[project.scripts]
+jobdbmcp = "jobdbmcp.server:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pytest-asyncio>=0.24",
+]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[tool.ruff.lint.isort]
+length-sort = true
+length-sort-straight = true
+section-order = ["future", "third-party", "first-party", "local-folder"]
+default-section = "third-party"
+known-first-party = ["jobdbmcp"]
+
+[tool.mypy]
+files = ["src/jobdbmcp", "tests"]
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = "asyncpg.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
