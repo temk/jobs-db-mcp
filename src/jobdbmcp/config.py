@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     database_url: str
 
     # Write tools are registered only when this is on, so a read-only deployment
-    # does not even advertise them.
+    # does not even advertise them. update_job_status is registered either way.
     allow_writes: bool = False
 
     host: str = "127.0.0.1"

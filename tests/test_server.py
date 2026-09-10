@@ -5,8 +5,8 @@ from jobdbmcp.server import create_server
 
 DATABASE_URL = "postgresql://jobdb:secret@127.0.0.1:5432/jobdb"
 
-READ_ONLY = {"job_exists", "get_job", "find_jobs"}
-WRITES = {"save_job", "set_job_status", "set_job_score"}
+ALWAYS = {"job_exists", "get_job", "find_jobs", "count_jobs", "update_job_status"}
+WRITES = {"create_job", "update_job"}
 
 
 async def tool_names(*, allow_writes: bool) -> set[str]:
@@ -14,12 +14,21 @@ async def tool_names(*, allow_writes: bool) -> set[str]:
     return {tool.name for tool in await create_server(settings).list_tools()}
 
 
+async def test_tools_returning_jobs_declare_the_content_untrusted() -> None:
+    settings = Settings(database_url=DATABASE_URL, allow_writes=False)
+    tools = {tool.name: tool for tool in await create_server(settings).list_tools()}
+
+    for name in ("get_job", "find_jobs"):
+        assert "UNTRUSTED CONTENT" in (tools[name].description or "")
+    assert "UNTRUSTED CONTENT" in str(tools["get_job"].output_schema)
+
+
 async def test_writes_are_absent_by_default() -> None:
-    assert await tool_names(allow_writes=False) == READ_ONLY
+    assert await tool_names(allow_writes=False) == ALWAYS
 
 
 async def test_writes_are_registered_when_allowed() -> None:
-    assert await tool_names(allow_writes=True) == READ_ONLY | WRITES
+    assert await tool_names(allow_writes=True) == ALWAYS | WRITES
 
 
 def test_allow_writes_is_read_from_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
