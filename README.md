@@ -84,7 +84,7 @@ docker build -t jobdbmcp-liquibase db
 ```
 
 Connection settings come from `.env`: `LIQUIBASE_COMMAND_URL`, `LIQUIBASE_COMMAND_USERNAME`,
-`LIQUIBASE_COMMAND_PASSWORD`, and `LIQUIBASE_COMMAND_CHANGELOG_FILE=changelog-master.yaml`.
+`LIQUIBASE_COMMAND_PASSWORD`, and `LIQUIBASE_COMMAND_CHANGELOG_FILE=changelog-master.yml`.
 Migrations need DDL rights, so they connect as a different role than the server does.
 
 ```bash
