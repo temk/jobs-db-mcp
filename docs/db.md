@@ -131,8 +131,8 @@ maintaining more indexes. Revisit when the table grows or a query is measurably 
 
 ## Access
 
-Roles and grants are managed outside this repository. The two deployments in
-`docker-compose.yml` connect as different roles:
+Roles and grants are managed outside this repository. The two deployments connect as different
+roles:
 
 - `jobs_rw`, used with `JOBDBMCP_ALLOW_WRITES`: `SELECT`, `INSERT`, and `UPDATE` on
   `jobs.vacancies`, no `DELETE`.

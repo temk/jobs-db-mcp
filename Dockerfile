@@ -29,4 +29,4 @@ ENV PATH="/app/.venv/bin:$PATH" \
 
 EXPOSE 8000
 
-CMD ["job-db-mcp"]
+CMD ["jobs-db-mcp"]

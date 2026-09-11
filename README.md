@@ -31,39 +31,22 @@ is not committed.
 | `JOBDBMCP_PORT` | Listen port, `8000` by default. |
 | `LIQUIBASE_COMMAND_*` | Used only when applying migrations, see below. |
 
-Read by `docker-compose.yml` rather than by the server itself:
-
-| Variable | Description |
-| --- | --- |
-| `POSTGRESQL_HOST` | Database host the containers connect to. |
-| `JOBDBMCP_RW_PORT` | Published port of the read-write container. |
-| `JOBDBMCP_RO_PORT` | Published port of the read-only container. |
-| `JOBDBMCP_RW_PASSWORD` | Password of the read-write database role. |
-| `JOBDBMCP_RO_PASSWORD` | Password of the read-only database role. |
-
 ## Running
 
 The server speaks MCP over Streamable HTTP at `/mcp`.
 
 ```bash
-uv run job-db-mcp
+uv run jobs-db-mcp
 ```
 
 In Docker:
 
 ```bash
-docker build -t job-db-mcp .
-docker run --rm --env-file .env jobdbmcp
+docker build -t jobs-db-mcp .
+docker run --rm --env-file .env jobs-db-mcp
 ```
 
-`docker-compose.yml` runs two containers off the same image, one with writes enabled and one
-without, each connecting as its own database role:
-
-```bash
-docker compose up -d
-```
-
-The containers need network access to the database.
+The container needs network access to the database.
 
 Always registered: `job_exists`, `get_job`, `find_jobs`, `count_jobs`, `update_job_status`.
 Write tools: `create_job`, `update_job`. They are registered only when
@@ -80,7 +63,7 @@ Migrations are Liquibase formatted SQL changesets under `db/changelog/`. The run
 the PostgreSQL JDBC driver, which Liquibase 5 no longer ships:
 
 ```bash
-docker build -t jobdbmcp-liquibase db
+docker build -t jobs-db-mcp-liquibase db
 ```
 
 Connection settings come from `.env`: `LIQUIBASE_COMMAND_URL`, `LIQUIBASE_COMMAND_USERNAME`,
@@ -91,16 +74,16 @@ Migrations need DDL rights, so they connect as a different role than the server 
 # status of each changeset
 docker run --rm --env-file .env \
   -v ./db/changelog:/liquibase/changelog -w /liquibase/changelog \
-  jobdbmcp-liquibase status --verbose
+  jobs-db-mcp-liquibase status --verbose
 
 # the SQL that would run, for review before applying
 docker run --rm --env-file .env \
   -v ./db/changelog:/liquibase/changelog -w /liquibase/changelog \
-  jobdbmcp-liquibase update-sql
+  jobs-db-mcp-liquibase update-sql
 
 docker run --rm --env-file .env \
   -v ./db/changelog:/liquibase/changelog -w /liquibase/changelog \
-  jobdbmcp-liquibase update
+  jobs-db-mcp-liquibase update
 ```
 
 ## Development
