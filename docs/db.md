@@ -34,7 +34,7 @@ CREATE TABLE jobs.vacancies (
     PRIMARY KEY (id),
     UNIQUE (site, pos_id),
     CHECK (score BETWEEN 0 AND 100),
-    CHECK (status IN ('new', 'interesting', 'not_interested', 'applied')),
+    CHECK (status IN ('new', 'interesting', 'not_interested', 'applied', 'closed')),
     CHECK (
         jsonb_typeof(requirements) = 'array'
         AND NOT jsonb_path_exists(requirements, '$[*] ? (@.type() != "string")')
@@ -61,7 +61,7 @@ The last four columns, their check, and the full-text index come from changeset
 | `downloaded_at` | `timestamptz` | no | When the record was first stored. Defaults to `now()`, which is the insert time by definition. Backs the `downloaded_after` filter. |
 | `published_at` | `timestamptz` | yes | Publication date reported by the site, unknown for some sources. |
 | `score` | `smallint` | yes | Relevance score, 0 to 100. `NULL` means not scored yet. |
-| `status` | `text` | no | Review state: `new`, `interesting`, `not_interested`, `applied`. Defaults to `new`. |
+| `status` | `text` | no | Review state: `new`, `interesting`, `not_interested`, `applied`, `closed`. Defaults to `new`. |
 | `managerial` | `boolean` | yes | Whether the role is a management one. `NULL` means not determined. |
 | `stack` | `text` | yes | Main technology stack in free form, e.g. `java/spring`, `c++`. |
 | `requirements` | `jsonb` | yes | Array of strings, trimmed, deduplicated, and sorted. `NULL` means not extracted yet; `[]` means none. |

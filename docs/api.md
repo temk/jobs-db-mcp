@@ -23,7 +23,7 @@ it.
 | `published_at` | no | Publication time reported by the site. |
 | `downloaded_at` | no | When the job was first stored. Set by the database; ignored on input. |
 | `score` | no | Relevance score, 0 to 100. Empty means not scored. |
-| `status` | no | `new`, `interesting`, `not_interested`, or `applied`. Defaults to `new`. |
+| `status` | no | `new`, `interesting`, `not_interested`, `applied`, or `closed`. Defaults to `new`. |
 | `managerial` | no | Whether the role is a management one. |
 | `stack` | no | Main technology stack, e.g. `java/spring`. |
 | `requirements` | no | List of strings, stored trimmed, deduplicated, and sorted. |
@@ -83,7 +83,7 @@ Set the review status of a job. Registered on every deployment, including one wi
 
 Inputs:
 - `job_id`
-- `status` — `new`, `interesting`, `not_interested`, or `applied`
+- `status` — `new`, `interesting`, `not_interested`, `applied`, or `closed`
 
 Returns the stored `Job`. Fails if no job has that `id`.
 

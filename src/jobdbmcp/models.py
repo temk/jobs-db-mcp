@@ -2,7 +2,7 @@ from typing import Any, Literal, Annotated
 from datetime import datetime
 from pydantic import Field, BaseModel, TypeAdapter, ValidationError
 
-JobStatus = Literal["new", "interesting", "not_interested", "applied"]
+JobStatus = Literal["new", "interesting", "not_interested", "applied", "closed"]
 OrderBy = Literal["published", "downloaded", "score"]
 Score = Annotated[int, Field(ge=0, le=100)]
 
