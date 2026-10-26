@@ -41,7 +41,9 @@ Later, the server will also provide tools for searching, filtering, ranking, and
   application order. The root changelog only includes them.
 - The root changelog is YAML because `include`/`includeAll` inside a formatted SQL changelog is
   license-gated in Liquibase 5 OSS. Changesets themselves stay formatted SQL.
-- All schema changes belonging to one task go into a single changeset.
+- All schema changes belonging to one task go into a single changeset. The exception is a data
+  migration that must run between two structural steps; then split the structure around it and
+  document why in `docs/db.md`.
 - Never edit an applied changeset; Liquibase checksums them. Fix forward with a new changeset.
 - Every changeset carries a `--rollback`. Document changes that cannot be rolled back safely.
 - Keep seed and data migrations in their own changesets, separate from structural changes.
@@ -61,8 +63,9 @@ docs/api.md         MCP tool contract
 tests/              pytest suite
 ```
 
-The application connects as the unprivileged `jobdb` role, which has SELECT, INSERT, and
-UPDATE on `jobs.vacancies` and no DELETE. Migrations connect as the superuser instead.
+The application connects as the unprivileged `jobs_rw` role, which has SELECT, INSERT, and
+UPDATE on `jobs.vacancies` and `jobs.organizations` and no DELETE. Migrations connect as the
+superuser instead.
 
 ## Commands
 ```bash

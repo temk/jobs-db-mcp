@@ -26,7 +26,6 @@ is not committed.
 | Variable | Description |
 | --- | --- |
 | `JOBDBMCP_DATABASE_URL` | PostgreSQL connection string for the application role. |
-| `JOBDBMCP_ALLOW_WRITES` | Register the write tools. Unset means a read-only server that can still change a job's status. |
 | `JOBDBMCP_HOST` | Bind address, `127.0.0.1` by default, `0.0.0.0` in the image. |
 | `JOBDBMCP_PORT` | Listen port, `8000` by default. |
 | `LIQUIBASE_COMMAND_*` | Used only when applying migrations, see below. |
@@ -48,11 +47,9 @@ docker run --rm --env-file .env jobs-db-mcp
 
 The container needs network access to the database.
 
-Always registered: `job_exists`, `get_job`, `find_jobs`, `count_jobs`, `update_job_status`.
-Write tools: `create_job`, `update_job`. They are registered only when
-`JOBDBMCP_ALLOW_WRITES` is set; without it they are absent from `tools/list` entirely, so a
-read-only deployment does not advertise what it will not do. It can still change a job's
-status, which needs `UPDATE (status)` for its database role; see [docs/db.md](docs/db.md).
+Tools: `create_job`, `update_job`, `create_organization`, `job_exists`, `get_job`,
+`find_jobs`, `count_jobs`, `find_organizations`. The server is meant to run locally, without
+authentication; the database role it connects as cannot delete anything.
 See [docs/api.md](docs/api.md) for their inputs and outputs.
 
 ## Database
